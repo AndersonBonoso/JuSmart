@@ -110,13 +110,8 @@ const RegisterPage = () => {
     e.preventDefault();
     if (!validateStep2()) return;
     setLoading(true);
-    
     const { error } = await signUp(formData.email, formData.password, formData);
-
-    if (!error) {
-      setStep(3);
-    }
-    
+    if (!error) setStep(3);
     setLoading(false);
   };
 
@@ -126,7 +121,7 @@ const RegisterPage = () => {
 
   if (step === 3) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+      <div className="min-h-screen flex items-center justify-center gradient-hero p-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,15 +149,17 @@ const RegisterPage = () => {
         <meta name="description" content="Crie sua conta JusSmart e comece a gerenciar seu escritório de advocacia hoje mesmo" />
       </Helmet>
 
-      <div className="min-h-screen flex bg-slate-50">
+      {/* Fundo sóbrio/azul-marinho */}
+      <div className="min-h-screen flex gradient-hero">
         <div className="fixed top-4 left-4 z-10">
           <Link to="/">
-            <Button variant="ghost">
+            <Button variant="ghost" className="text-white/90 hover:text-white">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar
             </Button>
           </Link>
         </div>
+
         <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -188,10 +185,28 @@ const RegisterPage = () => {
 
             {step === 1 ? (
               <div className="space-y-6">
+                {/* Botões sociais (brancos, sem amarelo) */}
                 <div className="grid grid-cols-2 gap-3">
-                  <Button type="button" variant="outline" onClick={handleSocialRegister}><GoogleIcon className="mr-2 h-5 w-5" />Google</Button>
-                  <Button type="button" variant="outline" onClick={handleSocialRegister}><AppleIcon className="mr-2 h-5 w-5" />Apple</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSocialRegister}
+                    className="bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm"
+                  >
+                    <GoogleIcon className="mr-2 h-5 w-5" />
+                    Google
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSocialRegister}
+                    className="bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm"
+                  >
+                    <AppleIcon className="mr-2 h-5 w-5" />
+                    Apple
+                  </Button>
                 </div>
+
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-300" />
@@ -202,6 +217,7 @@ const RegisterPage = () => {
                 </div>
 
                 <div className="space-y-4">
+                  {/* IMPORTANTE: pl-10 VEM POR ÚLTIMO para não ser sobrescrito por px-* */}
                   <div>
                     <Label htmlFor="name">Nome completo</Label>
                     <div className="relative mt-1">
@@ -210,7 +226,7 @@ const RegisterPage = () => {
                         type="text"
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
-                        className="input-base pl-10 px-4 py-3"
+                        className="px-4 pr-4 py-3 pl-10 input-base"
                         placeholder="Seu nome completo"
                         required
                       />
@@ -226,7 +242,7 @@ const RegisterPage = () => {
                         type="email"
                         value={formData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
-                        className="input-base pl-10 px-4 py-3"
+                        className="px-4 pr-4 py-3 pl-10 input-base"
                         placeholder="seu@email.com"
                         required
                       />
@@ -242,7 +258,7 @@ const RegisterPage = () => {
                         type={showPassword ? 'text' : 'password'}
                         value={formData.password}
                         onChange={(e) => handleInputChange('password', e.target.value)}
-                        className="input-base pl-10 pr-10 px-4 py-3"
+                        className="px-4 pr-10 py-3 pl-10 input-base"
                         placeholder="Crie uma senha"
                         required
                       />
@@ -266,7 +282,7 @@ const RegisterPage = () => {
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={formData.confirmPassword}
                         onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                        className="input-base pl-10 pr-10 px-4 py-3"
+                        className="px-4 pr-10 py-3 pl-10 input-base"
                         placeholder="Confirme sua senha"
                         required
                       />
@@ -314,7 +330,7 @@ const RegisterPage = () => {
                       type="text"
                       value={formData.escritorio_nome}
                       onChange={(e) => handleInputChange('escritorio_nome', e.target.value)}
-                      className="input-base pl-10 px-4 py-3"
+                      className="px-4 pr-4 py-3 pl-10 input-base"
                       placeholder="Nome do seu escritório"
                       required
                     />
@@ -332,7 +348,7 @@ const RegisterPage = () => {
                           type="text"
                           value={formData.oab}
                           onChange={(e) => handleInputChange('oab', e.target.value)}
-                          className="input-base pl-10 px-4 py-3"
+                          className="px-4 pr-4 py-3 pl-10 input-base"
                           placeholder="Ex: SP123456"
                           required
                         />
