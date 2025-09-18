@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/components/ui/use-toast';
-import { GoogleIcon, AppleIcon } from '@/components/ui/icons';
 import PasswordStrength from '@/components/PasswordStrength';
+import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
 
 const RegisterPage = () => {
   const [step, setStep] = useState(1);
@@ -101,9 +101,7 @@ const RegisterPage = () => {
   };
 
   const handleNext = () => {
-    if (step === 1 && validateStep1()) {
-      setStep(2);
-    }
+    if (step === 1 && validateStep1()) setStep(2);
   };
 
   const handleSubmit = async (e) => {
@@ -116,7 +114,7 @@ const RegisterPage = () => {
   };
 
   const handleSocialRegister = () => {
-    toast({ title: "🚧 Este recurso não está implementado ainda", description: "Mas não se preocupe! Você pode solicitar na próxima conversa! 🚀" });
+    toast({ title: "🚧 Este recurso não está implementado ainda", description: "Podemos ativar na próxima etapa. 🚀" });
   };
 
   if (step === 3) {
@@ -185,27 +183,11 @@ const RegisterPage = () => {
 
             {step === 1 ? (
               <div className="space-y-6">
-                {/* Botões sociais (brancos, sem amarelo) */}
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSocialRegister}
-                    className="bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm"
-                  >
-                    <GoogleIcon className="mr-2 h-5 w-5" />
-                    Google
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSocialRegister}
-                    className="bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm"
-                  >
-                    <AppleIcon className="mr-2 h-5 w-5" />
-                    Apple
-                  </Button>
-                </div>
+                {/* Botões Sociais (componentizado) */}
+                <SocialLoginButtons
+                  onGoogleClick={handleSocialRegister}
+                  onAppleClick={handleSocialRegister}
+                />
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -217,7 +199,7 @@ const RegisterPage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {/* IMPORTANTE: pl-10 VEM POR ÚLTIMO para não ser sobrescrito por px-* */}
+                  {/* IMPORTANTE: pl-10 por último para não ser sobrescrito por px-* */}
                   <div>
                     <Label htmlFor="name">Nome completo</Label>
                     <div className="relative mt-1">
@@ -312,7 +294,8 @@ const RegisterPage = () => {
                 <div>
                   <Label htmlFor="tipo">Tipo de escritório</Label>
                   <Select value={formData.tipo} onValueChange={(value) => handleInputChange('tipo', value)}>
-                    <SelectTrigger>
+                    {/* Trigger com visual de input branco */}
+                    <SelectTrigger className="input-base h-12 px-4 pr-10">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
