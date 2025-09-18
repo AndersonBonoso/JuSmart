@@ -1,21 +1,21 @@
+import React from "react";
+import { cn } from "@/lib/utils";
 
-import React from "react"
-
-import { cn } from "@/lib/utils"
-
-const Input = React.forwardRef(({ className, type, ...props }, ref) => {
+const Input = React.forwardRef(({ className = "", type = "text", ...props }, ref) => {
   return (
     <input
       type={type}
+      ref={ref}
+      // Preset visual do projeto: fundo branco, borda, foco etc. (vem de index.css)
+      // Mantemos w-full e paddings padrão; classes extras podem ser passadas via className
       className={cn(
-        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "input-base w-full px-4 py-3 text-sm",
         className
       )}
-      ref={ref}
       {...props}
     />
-  )
-})
-Input.displayName = "Input"
+  );
+});
+Input.displayName = "Input";
 
-export { Input }
+export { Input };
