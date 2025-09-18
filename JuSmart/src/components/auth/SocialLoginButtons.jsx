@@ -55,13 +55,14 @@ export default function SocialLoginButtons({
   onAppleClick,
   size = "md", // sm | md | lg
   className = "",
-  googleText = "Continuar com Google",
-  appleText = "Continuar com Apple",
+  googleText = "Entrar com Google",
+  appleText = "Entrar com Apple ID",
 }) {
+  // tamanhos com padding esquerdo ligeiramente maior (pl-6) para dar folga ao ícone
   const sizes = {
-    sm: "h-10 px-4 text-[14px]",
-    md: "h-12 px-5 text-[15px]",
-    lg: "h-12 px-6 text-[16px]",
+    sm: "h-10 pl-6 pr-4 text-[14px]",
+    md: "h-12 pl-6 pr-5 text-[15px]",
+    lg: "h-12 pl-7 pr-6 text-[16px]",
   };
 
   return (
@@ -71,10 +72,10 @@ export default function SocialLoginButtons({
         type="button"
         variant="outline"
         onClick={onGoogleClick}
-        className={`inline-flex items-center justify-center gap-3 ${sizes[size]} bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm font-medium leading-none`}
+        className={`inline-flex items-center justify-center sm:justify-start gap-0 ${sizes[size]} bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm font-medium leading-none`}
         aria-label={googleText}
       >
-        <GoogleSVG className="mr-1" />
+        <GoogleSVG className="mr-3" />
         <span className="whitespace-nowrap">{googleText}</span>
       </Button>
 
@@ -82,10 +83,10 @@ export default function SocialLoginButtons({
       <Button
         type="button"
         onClick={onAppleClick}
-        className={`inline-flex items-center justify-center gap-3 ${sizes[size]} bg-black text-white hover:bg-black/90 font-medium leading-none`}
+        className={`inline-flex items-center justify-center sm:justify-start gap-0 ${sizes[size]} bg-black text-white hover:bg-black/90 font-medium leading-none`}
         aria-label={appleText}
       >
-        <AppleSVG className="mr-1" />
+        <AppleSVG className="mr-3" />
         <span className="whitespace-nowrap">{appleText}</span>
       </Button>
     </div>
