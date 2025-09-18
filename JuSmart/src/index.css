@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -60,6 +59,9 @@
   }
 }
 
+/* =========================
+   COMPONENTS
+   ========================= */
 @layer components {
   .gradient-primary {
     background: linear-gradient(135deg, #0A2540, #123A63);
@@ -81,4 +83,32 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* ---- INPUT PADRÃO (fundo branco) ---- */
+  .input-base {
+    @apply bg-white text-slate-900 placeholder-slate-500
+           border border-slate-300 rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+}
+
+/* =========================
+   FIX: amarelo do autofill (Chrome/Safari)
+   ========================= */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important; /* slate-900 */
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Garantia extra: qualquer input sem .input-base ainda fica branco */
+input, textarea, select {
+  background-color: #ffffff;
+  color: #0f172a; /* slate-900 */
 }
