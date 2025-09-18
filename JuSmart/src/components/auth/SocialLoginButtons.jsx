@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-/** Google multicolor – protegido contra CSS global que altera fill */
+/** Google multicolor (inline, à prova de CSS global) */
 const GoogleSVG = ({ className = "" }) => (
   <svg
     viewBox="0 0 48 48"
@@ -34,7 +34,7 @@ const GoogleSVG = ({ className = "" }) => (
   </svg>
 );
 
-/** Apple monocromático – herda a cor (texto branco sobre bg preto) */
+/** Apple – herda a cor (branco no botão preto) */
 const AppleSVG = ({ className = "" }) => (
   <svg
     viewBox="0 0 24 24"
@@ -53,40 +53,40 @@ const AppleSVG = ({ className = "" }) => (
 export default function SocialLoginButtons({
   onGoogleClick,
   onAppleClick,
-  size = "md", // sm | md | lg
+  size = "md",            // sm | md | lg
   className = "",
   googleText = "Entrar com Google",
   appleText = "Entrar com Apple ID",
 }) {
-  // tamanhos com padding esquerdo ligeiramente maior (pl-6) para dar folga ao ícone
+  // Alturas + padding simétrico (px-*), tipografia uniforme
   const sizes = {
-    sm: "h-10 pl-6 pr-4 text-[14px]",
-    md: "h-12 pl-6 pr-5 text-[15px]",
-    lg: "h-12 pl-7 pr-6 text-[16px]",
+    sm: "h-10 px-6 text-[14px]",
+    md: "h-12 px-6 text-[15px]",
+    lg: "h-12 px-7 text-[16px]",
   };
 
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${className}`}>
-      {/* Google */}
+      {/* Google – botão claro */}
       <Button
         type="button"
         variant="outline"
         onClick={onGoogleClick}
-        className={`inline-flex items-center justify-center sm:justify-start gap-0 ${sizes[size]} bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm font-medium leading-none`}
+        className={`inline-flex items-center justify-center gap-3 ${sizes[size]} bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm font-medium leading-none`}
         aria-label={googleText}
       >
-        <GoogleSVG className="mr-3" />
+        <GoogleSVG />
         <span className="whitespace-nowrap">{googleText}</span>
       </Button>
 
-      {/* Apple */}
+      {/* Apple – botão preto oficial */}
       <Button
         type="button"
         onClick={onAppleClick}
-        className={`inline-flex items-center justify-center sm:justify-start gap-0 ${sizes[size]} bg-black text-white hover:bg-black/90 font-medium leading-none`}
+        className={`inline-flex items-center justify-center gap-3 ${sizes[size]} bg-black text-white hover:bg-black/90 font-medium leading-none`}
         aria-label={appleText}
       >
-        <AppleSVG className="mr-3" />
+        <AppleSVG />
         <span className="whitespace-nowrap">{appleText}</span>
       </Button>
     </div>
