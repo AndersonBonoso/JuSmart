@@ -1,19 +1,17 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Select = SelectPrimitive.Root;
-
 const SelectGroup = SelectPrimitive.Group;
-
 const SelectValue = SelectPrimitive.Value;
 
 const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      // Força nosso preset visual (mesmo do input) + layout do trigger
+      // Preset visual igual aos inputs (fundo branco, borda, foco)
       "input-base h-12 w-full px-4 pr-10 flex items-center justify-between",
       "aria-invalid:ring-2 aria-invalid:ring-red-500",
       "disabled:cursor-not-allowed disabled:opacity-60",
@@ -21,10 +19,9 @@ const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) 
     )}
     {...props}
   >
-    {/* placeholder ficará com cor neutra */}
     <SelectValue placeholder={<span className="text-slate-500">Selecione</span>} />
     <SelectPrimitive.Icon asChild>
-      <ChevronDownIcon className="ml-2 h-4 w-4 opacity-70" />
+      <ChevronDown className="ml-2 h-4 w-4 opacity-70" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -33,12 +30,10 @@ SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 const SelectScrollUpButton = React.forwardRef(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
-    className={cn(
-      "flex cursor-default items-center justify-center py-1 text-slate-600"
-    )}
+    className={cn("flex cursor-default items-center justify-center py-1 text-slate-600", className)}
     {...props}
   >
-    <ChevronUpIcon />
+    <ChevronUp className="h-4 w-4" />
   </SelectPrimitive.ScrollUpButton>
 ));
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName;
@@ -46,12 +41,10 @@ SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName;
 const SelectScrollDownButton = React.forwardRef(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
-    className={cn(
-      "flex cursor-default items-center justify-center py-1 text-slate-600"
-    )}
+    className={cn("flex cursor-default items-center justify-center py-1 text-slate-600", className)}
     {...props}
   >
-    <ChevronDownIcon />
+    <ChevronDown className="h-4 w-4" />
   </SelectPrimitive.ScrollDownButton>
 ));
 SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName;
@@ -62,7 +55,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
       ref={ref}
       position={position}
       className={cn(
-        // Caixa do dropdown: branco, borda sutil, sombra, arredondado
+        // Dropdown branco com borda sutil e sombra
         "z-50 min-w-[8rem] overflow-hidden rounded-md border border-slate-200 bg-white text-slate-900 shadow-md",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -101,7 +94,7 @@ const SelectItem = React.forwardRef(({ className, children, ...props }, ref) => 
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      // Item: sem amarelo; hover cinza claro; selecionado azul clarinho
+      // Item sem amarelo: hover cinza claro, selecionado azul suave
       "relative flex w-full cursor-default select-none items-center rounded-md py-2 pl-8 pr-3 text-sm outline-none",
       "text-slate-900",
       "focus:bg-slate-100",
@@ -112,7 +105,7 @@ const SelectItem = React.forwardRef(({ className, children, ...props }, ref) => 
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <CheckIcon className="h-4 w-4" />
+        <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
