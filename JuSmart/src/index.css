@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 248 250 252;
+    --foreground: 11 18 32;
+    --card: 255 255 255;
+    --card-foreground: 11 18 32;
+    --popover: 255 255 255;
+    --popover-foreground: 11 18 32;
+    --primary: 10 37 64;
+    --primary-foreground: 248 250 252;
+    --secondary: 30 41 59;
+    --secondary-foreground: 248 250 252;
+    --muted: 226 232 240;
+    --muted-foreground: 51 65 85;
+    --accent: 56 189 248;
+    --accent-foreground: 11 18 32;
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 10 37 64;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 11 18 32;
+    --foreground: 248 250 252;
+    --card: 17 24 39;
+    --card-foreground: 248 250 252;
+    --popover: 17 24 39;
+    --popover-foreground: 248 250 252;
+    --primary: 10 37 64;
+    --primary-foreground: 248 250 252;
+    --secondary: 30 41 59;
+    --secondary-foreground: 248 250 252;
+    --muted: 17 24 39;
+    --muted-foreground: 100 116 139;
+    --accent: 56 189 248;
+    --accent-foreground: 11 18 32;
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+    --border: 30 41 59;
+    --input: 30 41 59;
+    --ring: 56 189 248;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+/* =========================
+   COMPONENTS
+   ========================= */
+@layer components {
+  .gradient-primary {
+    background: linear-gradient(135deg, #0A2540, #123A63);
+  }
+  
+  .gradient-hero {
+    background: linear-gradient(135deg, #0A2540 0%, #123A63 50%, #1E293B 100%);
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, #38BDF8, #0A2540);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ---- INPUT PADRÃO (fundo branco) ---- */
+  .input-base {
+    @apply bg-white text-slate-900 placeholder-slate-500
+           border border-slate-300 rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+}
+
+/* =========================
+   FIX: amarelo do autofill (Chrome/Safari)
+   ========================= */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important; /* slate-900 */
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Garantia extra: qualquer input sem .input-base ainda fica branco */
+input, textarea, select {
+  background-color: #ffffff;
+  color: #0f172a; /* slate-900 */
+}
