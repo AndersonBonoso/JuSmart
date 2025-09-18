@@ -1,0 +1,11 @@
+
+              <AppRoutes />
+              <Toaster />
+            </div>
+          </AuthProvider>
+        </Router>
+      );
+    }
+
+    export default App;
+  

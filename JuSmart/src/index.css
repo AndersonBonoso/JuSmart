@@ -1,0 +1,84 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 248 250 252;
+    --foreground: 11 18 32;
+    --card: 255 255 255;
+    --card-foreground: 11 18 32;
+    --popover: 255 255 255;
+    --popover-foreground: 11 18 32;
+    --primary: 10 37 64;
+    --primary-foreground: 248 250 252;
+    --secondary: 30 41 59;
+    --secondary-foreground: 248 250 252;
+    --muted: 226 232 240;
+    --muted-foreground: 51 65 85;
+    --accent: 56 189 248;
+    --accent-foreground: 11 18 32;
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 10 37 64;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 11 18 32;
+    --foreground: 248 250 252;
+    --card: 17 24 39;
+    --card-foreground: 248 250 252;
+    --popover: 17 24 39;
+    --popover-foreground: 248 250 252;
+    --primary: 10 37 64;
+    --primary-foreground: 248 250 252;
+    --secondary: 30 41 59;
+    --secondary-foreground: 248 250 252;
+    --muted: 17 24 39;
+    --muted-foreground: 100 116 139;
+    --accent: 56 189 248;
+    --accent-foreground: 11 18 32;
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+    --border: 30 41 59;
+    --input: 30 41 59;
+    --ring: 56 189 248;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    background: linear-gradient(135deg, #0A2540, #123A63);
+  }
+  
+  .gradient-hero {
+    background: linear-gradient(135deg, #0A2540 0%, #123A63 50%, #1E293B 100%);
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, #38BDF8, #0A2540);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
