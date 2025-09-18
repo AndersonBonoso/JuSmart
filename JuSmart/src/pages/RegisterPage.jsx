@@ -192,32 +192,94 @@ const RegisterPage = () => {
                   <Button type="button" variant="outline" onClick={handleSocialRegister}><GoogleIcon className="mr-2 h-5 w-5" />Google</Button>
                   <Button type="button" variant="outline" onClick={handleSocialRegister}><AppleIcon className="mr-2 h-5 w-5" />Apple</Button>
                 </div>
-                <div className="relative"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-300" /></div><div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-slate-500">Ou cadastre-se com email</span></div></div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-slate-500">Ou cadastre-se com email</span>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="name">Nome completo</Label>
-                    <div className="relative mt-1"><Input id="name" type="text" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} className="pl-10" placeholder="Seu nome completo" required /><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /></div>
+                    <div className="relative mt-1">
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        className="input-base pl-10 px-4 py-3"
+                        placeholder="Seu nome completo"
+                        required
+                      />
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    </div>
                   </div>
+
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <div className="relative mt-1"><Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} className="pl-10" placeholder="seu@email.com" required /><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /></div>
+                    <div className="relative mt-1">
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className="input-base pl-10 px-4 py-3"
+                        placeholder="seu@email.com"
+                        required
+                      />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    </div>
                   </div>
+
                   <div>
                     <Label htmlFor="password">Senha</Label>
                     <div className="relative mt-1">
-                      <Input id="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => handleInputChange('password', e.target.value)} className="pl-10 pr-10" placeholder="Crie uma senha" required />
+                      <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        className="input-base pl-10 pr-10 px-4 py-3"
+                        placeholder="Crie uma senha"
+                        required
+                      />
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
                     </div>
                     <PasswordStrength password={formData.password} />
                   </div>
+
                   <div>
                     <Label htmlFor="confirmPassword">Confirmar senha</Label>
                     <div className="relative mt-1">
-                      <Input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={(e) => handleInputChange('confirmPassword', e.target.value)} className="pl-10 pr-10" placeholder="Confirme sua senha" required />
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={formData.confirmPassword}
+                        onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                        className="input-base pl-10 pr-10 px-4 py-3"
+                        placeholder="Confirme sua senha"
+                        required
+                      />
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
                     </div>
+
                     {formData.confirmPassword && (
                       <div className={`flex items-center mt-2 text-xs ${passwordMatch ? 'text-green-600' : 'text-red-600'}`}>
                         {passwordMatch ? <CheckCircle className="h-4 w-4 mr-1" /> : <XCircle className="h-4 w-4 mr-1" />}
@@ -225,6 +287,7 @@ const RegisterPage = () => {
                       </div>
                     )}
                   </div>
+
                   <Button type="button" onClick={handleNext} className="w-full">Continuar</Button>
                 </div>
               </div>
@@ -232,45 +295,136 @@ const RegisterPage = () => {
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <Label htmlFor="tipo">Tipo de escritório</Label>
-                  <Select value={formData.tipo} onValueChange={(value) => handleInputChange('tipo', value)}><SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger><SelectContent><SelectItem value="PF">Pessoa Física</SelectItem><SelectItem value="PJ">Pessoa Jurídica</SelectItem></SelectContent></Select>
+                  <Select value={formData.tipo} onValueChange={(value) => handleInputChange('tipo', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PF">Pessoa Física</SelectItem>
+                      <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+
                 <div>
                   <Label htmlFor="escritorio_nome">Nome do escritório</Label>
-                  <div className="relative mt-1"><Input id="escritorio_nome" type="text" value={formData.escritorio_nome} onChange={(e) => handleInputChange('escritorio_nome', e.target.value)} className="pl-10" placeholder="Nome do seu escritório" required /><Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /></div>
+                  <div className="relative mt-1">
+                    <Input
+                      id="escritorio_nome"
+                      type="text"
+                      value={formData.escritorio_nome}
+                      onChange={(e) => handleInputChange('escritorio_nome', e.target.value)}
+                      className="input-base pl-10 px-4 py-3"
+                      placeholder="Nome do seu escritório"
+                      required
+                    />
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  </div>
                 </div>
+
                 {formData.tipo === 'PF' && (
                   <>
                     <div>
                       <Label htmlFor="oab">Número da OAB</Label>
-                      <div className="relative mt-1"><Input id="oab" type="text" value={formData.oab} onChange={(e) => handleInputChange('oab', e.target.value)} className="pl-10" placeholder="Ex: SP123456" required /><FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /></div>
+                      <div className="relative mt-1">
+                        <Input
+                          id="oab"
+                          type="text"
+                          value={formData.oab}
+                          onChange={(e) => handleInputChange('oab', e.target.value)}
+                          className="input-base pl-10 px-4 py-3"
+                          placeholder="Ex: SP123456"
+                          required
+                        />
+                        <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      </div>
                     </div>
-                    <div><Label htmlFor="oab_validade">Data de validade da OAB</Label><Input id="oab_validade" type="date" value={formData.oab_validade} onChange={(e) => handleInputChange('oab_validade', e.target.value)} required /></div>
+
+                    <div>
+                      <Label htmlFor="oab_validade">Data de validade da OAB</Label>
+                      <Input
+                        id="oab_validade"
+                        type="date"
+                        value={formData.oab_validade}
+                        onChange={(e) => handleInputChange('oab_validade', e.target.value)}
+                        className="input-base px-4 py-3"
+                        required
+                      />
+                    </div>
                   </>
                 )}
+
                 {formData.tipo === 'PJ' && (
                   <>
-                    <div><Label htmlFor="cpf">CPF do responsável legal</Label><Input id="cpf" type="text" value={formData.cpf} onChange={(e) => handleInputChange('cpf', e.target.value)} placeholder="000.000.000-00" required /></div>
+                    <div>
+                      <Label htmlFor="cpf">CPF do responsável legal</Label>
+                      <Input
+                        id="cpf"
+                        type="text"
+                        value={formData.cpf}
+                        onChange={(e) => handleInputChange('cpf', e.target.value)}
+                        className="input-base px-4 py-3"
+                        placeholder="000.000.000-00"
+                        required
+                      />
+                    </div>
+
                     <div>
                       <Label>Sócios</Label>
                       {formData.socios.map((socio, index) => (
                         <div key={index} className="border p-4 rounded-lg mt-2 space-y-2">
                           <div className="grid grid-cols-2 gap-2">
-                            <Input placeholder="Nome do sócio" value={socio.nome} onChange={(e) => handleSocioChange(index, 'nome', e.target.value)} required />
-                            <Input placeholder="CPF" value={socio.cpf} onChange={(e) => handleSocioChange(index, 'cpf', e.target.value)} required />
+                            <Input
+                              placeholder="Nome do sócio"
+                              value={socio.nome}
+                              onChange={(e) => handleSocioChange(index, 'nome', e.target.value)}
+                              className="input-base px-4 py-3"
+                              required
+                            />
+                            <Input
+                              placeholder="CPF"
+                              value={socio.cpf}
+                              onChange={(e) => handleSocioChange(index, 'cpf', e.target.value)}
+                              className="input-base px-4 py-3"
+                              required
+                            />
                           </div>
                           <div className="flex items-center gap-2">
-                            <Input type="number" placeholder="% participação" value={socio.percentual} onChange={(e) => handleSocioChange(index, 'percentual', e.target.value)} required />
-                            {formData.socios.length > 1 && <Button type="button" variant="destructive" size="sm" onClick={() => removeSocio(index)}>Remover</Button>}
+                            <Input
+                              type="number"
+                              placeholder="% participação"
+                              value={socio.percentual}
+                              onChange={(e) => handleSocioChange(index, 'percentual', e.target.value)}
+                              className="input-base px-4 py-3"
+                              required
+                            />
+                            {formData.socios.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeSocio(index)}
+                              >
+                                Remover
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}
-                      <Button type="button" variant="outline" onClick={addSocio} className="mt-2 w-full">Adicionar Sócio</Button>
+                      <Button type="button" variant="outline" onClick={addSocio} className="mt-2 w-full">
+                        Adicionar Sócio
+                      </Button>
                     </div>
                   </>
                 )}
+
                 <div className="flex gap-3 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">Voltar</Button>
-                  <Button type="submit" className="flex-1" disabled={loading}>{loading ? 'Criando conta...' : 'Criar conta'}</Button>
+                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
+                    Voltar
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={loading}>
+                    {loading ? 'Criando conta...' : 'Criar conta'}
+                  </Button>
                 </div>
               </form>
             )}
