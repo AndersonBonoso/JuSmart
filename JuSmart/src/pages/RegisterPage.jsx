@@ -213,8 +213,8 @@ const RegisterPage = () => {
               <div className="space-y-6">
                 {/* Botões Sociais (componentizado) */}
                 <SocialLoginButtons
-                  onGoogleClick={handleGoogleLogin}   {/* ⬅️ ALTERADO */}
-                  onAppleClick={handleAppleLogin}     {/* ⬅️ ALTERADO */}
+                  onGoogleClick={handleGoogleLogin}
+                  onAppleClick={handleAppleLogin}
                 />
 
                 <div className="relative">
