@@ -30,10 +30,25 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // ⬇️ ALTERAÇÃO: acrescentamos signInWithGoogle e signInWithApple
-  const { signUp, signInWithGoogle, signInWithApple } = useAuth();
+  const { signUp } = useAuth();
   const { toast } = useToast();
+
+  // ========= Handlers de OAuth (Supabase) =========
+  const APP_URL =
+    import.meta.env.VITE_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const redirectTo = `${APP_URL}/login`; // pós-login retorna para /login (que redireciona p/ /app)
+
+  const goOAuth = (provider) => {
+    const url = new URL(`${SUPABASE_URL}/auth/v1/authorize`);
+    url.searchParams.set('provider', provider);
+    url.searchParams.set('redirect_to', redirectTo);
+    window.location.assign(url.toString());
+  };
+
+  const handleGoogleLogin = () => goOAuth('google');
+  const handleAppleLogin = () => goOAuth('apple');
+  // ================================================
 
   const passwordMatch = useMemo(() => {
     return formData.password && formData.confirmPassword && formData.password === formData.confirmPassword;
@@ -115,36 +130,6 @@ const RegisterPage = () => {
     setLoading(false);
   };
 
-  // ⬇️ NOVOS HANDLERS reais para os botões sociais
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (err) {
-      toast({
-        title: 'Erro ao entrar com Google',
-        description: err?.message || String(err),
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleAppleLogin = async () => {
-    try {
-      await signInWithApple();
-    } catch (err) {
-      toast({
-        title: 'Apple ID indisponível',
-        description: 'Configure o provedor Apple no Supabase para ativar este login.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Mantemos esse placeholder caso queira reutilizar
-  const handleSocialRegister = () => {
-    toast({ title: "🚧 Este recurso não está implementado ainda", description: "Podemos ativar na próxima etapa. 🚀" });
-  };
-
   if (step === 3) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-hero p-4">
@@ -211,7 +196,7 @@ const RegisterPage = () => {
 
             {step === 1 ? (
               <div className="space-y-6">
-                {/* Botões Sociais (componentizado) */}
+                {/* Botões Sociais */}
                 <SocialLoginButtons
                   onGoogleClick={handleGoogleLogin}
                   onAppleClick={handleAppleLogin}
