@@ -8,91 +8,73 @@ import React, {
 } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-// ===================================================
-// Supabase client
-// ===================================================
+// ------------ Supabase client ------------
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnon) {
-  // Log claro em dev
-  console.warn(
-    "[Supabase] VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY não definidos."
-  );
+  console.warn("[Supabase] VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY não definidos.");
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnon, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
+  auth: { persistSession: true, autoRefreshToken: true },
 });
 
-// ===================================================
-// Helpers
-// ===================================================
+// ------------ Helpers ------------
 function getRedirectTo() {
-  // Em dev usa localhost; em prod usa domínio do app
   const fromEnv = import.meta.env.VITE_APP_URL;
-  if (fromEnv) return `${fromEnv}/login`; // pós-login cai no /login que redireciona para /app
-  if (typeof window !== "undefined") {
-    const base = window.location.origin;
-    return `${base}/login`;
-  }
+  if (fromEnv) return `${fromEnv}/login`;
+  if (typeof window !== "undefined") return `${window.location.origin}/login`;
   return undefined;
 }
+const hasV2OAuth = () => typeof supabase?.auth?.signInWithOAuth === "function";
+const hasV1OAuth = () => typeof supabase?.auth?.signIn === "function";
 
-const hasV2OAuth = () =>
-  typeof supabase?.auth?.signInWithOAuth === "function"; // v2
-const hasV1OAuth = () => typeof supabase?.auth?.signIn === "function"; // v1
+// fallback final: força authorize por URL do Supabase
+function manualAuthorize(provider, redirectTo) {
+  const url = new URL(`${supabaseUrl}/auth/v1/authorize`);
+  url.searchParams.set("provider", provider);
+  if (redirectTo) url.searchParams.set("redirect_to", redirectTo);
+  window.location.assign(url.toString());
+}
 
-// ===================================================
-/* Contexto */
-// ===================================================
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Carrega sessão inicial
+  // sessão inicial + listener
   useEffect(() => {
-    let mounted = true;
-
-    async function load() {
+    let alive = true;
+    (async () => {
       try {
         if (typeof supabase.auth.getSession === "function") {
-          // v2
           const { data } = await supabase.auth.getSession();
-          if (!mounted) return;
+          if (!alive) return;
           setUser(data?.session?.user ?? null);
         } else if (typeof supabase.auth.session === "function") {
-          // v1
           const session = supabase.auth.session();
-          if (!mounted) return;
+          if (!alive) return;
           setUser(session?.user ?? null);
         }
       } finally {
-        if (mounted) setLoading(false);
+        if (alive) setLoading(false);
       }
-    }
-    load();
+    })();
 
-    // Escuta mudanças de auth
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
     });
-
     return () => {
-      mounted = false;
+      alive = false;
       sub?.subscription?.unsubscribe?.();
     };
   }, []);
 
-  // -------- email + senha --------
+  // email + senha
   const signUp = useCallback(async (email, password, metadata = {}) => {
     if (typeof supabase.auth.signUp === "function") {
-      // v2
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -101,7 +83,6 @@ export function AuthProvider({ children }) {
       if (error) throw error;
       return data;
     }
-    // v1
     const { user, session, error } = await supabase.auth.signUp(
       { email, password },
       { data: metadata }
@@ -110,74 +91,85 @@ export function AuthProvider({ children }) {
     return { user, session };
   }, []);
 
-  // -------- OAuth (Google) com fallback v2 -> v1 --------
+  // OAuth Google com v2 → v1 → fallback por URL
   const signInWithGoogle = useCallback(async () => {
     const redirectTo = getRedirectTo();
-
-    if (hasV2OAuth()) {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo,
-          queryParams: { access_type: "offline", prompt: "consent" },
-        },
-      });
-      if (error) throw error;
-      return data;
+    try {
+      if (hasV2OAuth()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo,
+            queryParams: { access_type: "offline", prompt: "consent" },
+          },
+        });
+        if (error) throw error;
+        return data;
+      }
+      if (hasV1OAuth()) {
+        const { user, session, error } = await supabase.auth.signIn(
+          { provider: "google" },
+          { redirectTo }
+        );
+        if (error) throw error;
+        return { user, session };
+      }
+      manualAuthorize("google", redirectTo);
+    } catch (err) {
+      console.warn("[OAuth Google via SDK falhou] Forçando authorize:", err);
+      manualAuthorize("google", redirectTo);
     }
-
-    if (hasV1OAuth()) {
-      const { user, session, error } = await supabase.auth.signIn(
-        { provider: "google" },
-        { redirectTo }
-      );
-      if (error) throw error;
-      return { user, session };
-    }
-
-    throw new Error(
-      "Nenhuma API OAuth válida encontrada no supabase-js (v1/v2)."
-    );
   }, []);
 
-  // -------- OAuth (Apple) com fallback v2 -> v1 --------
+  // OAuth Apple com v2 → v1 → fallback por URL
   const signInWithApple = useCallback(async () => {
     const redirectTo = getRedirectTo();
-
-    if (hasV2OAuth()) {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "apple",
-        options: { redirectTo },
-      });
-      if (error) throw error;
-      return data;
+    try {
+      if (hasV2OAuth()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "apple",
+          options: { redirectTo },
+        });
+        if (error) throw error;
+        return data;
+      }
+      if (hasV1OAuth()) {
+        const { user, session, error } = await supabase.auth.signIn(
+          { provider: "apple" },
+          { redirectTo }
+        );
+        if (error) throw error;
+        return { user, session };
+      }
+      manualAuthorize("apple", redirectTo);
+    } catch (err) {
+      console.warn("[OAuth Apple via SDK falhou] Forçando authorize:", err);
+      manualAuthorize("apple", redirectTo);
     }
-
-    if (hasV1OAuth()) {
-      const { user, session, error } = await supabase.auth.signIn(
-        { provider: "apple" },
-        { redirectTo }
-      );
-      if (error) throw error;
-      return { user, session };
-    }
-
-    throw new Error(
-      "Nenhuma API OAuth válida encontrada no supabase-js (v1/v2)."
-    );
   }, []);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, []);
 
+  // mantém updateProfile
   const updateProfile = useCallback(async (updates) => {
-    const u = supabase.auth.user?.() ?? supabase.auth.getUser?.();
-    const currentUser = u?.user ?? u; // v1/v2 compat
-    if (!currentUser) throw new Error("Sem usuário logado.");
+    let userId = null;
+
+    // v2: getUser() é async e retorna { data: { user } }
+    if (typeof supabase.auth.getUser === "function") {
+      const { data } = await supabase.auth.getUser();
+      userId = data?.user?.id ?? null;
+    }
+    // v1: user() é sync
+    if (!userId && typeof supabase.auth.user === "function") {
+      userId = supabase.auth.user()?.id ?? null;
+    }
+
+    if (!userId) throw new Error("Sem usuário logado.");
 
     const { data, error } = await supabase.from("profiles").upsert({
-      id: currentUser.id,
+      id: userId,
       ...updates,
       updated_at: new Date().toISOString(),
     });
@@ -185,15 +177,14 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  // mantém refreshSession (v2 apenas)
   const refreshSession = useCallback(async () => {
     if (typeof supabase.auth.refreshSession === "function") {
-      // v2
       const { data, error } = await supabase.auth.refreshSession();
       if (error) throw error;
       return data;
     }
-    // v1 não precisa (token auto-refresh)
-    return null;
+    return null; // v1 não precisa
   }, []);
 
   const value = useMemo(
