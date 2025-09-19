@@ -96,12 +96,12 @@ const AppRoutes = () => {
 function App() {
   return (
     <Router>
-      <SupabaseAuthProvider>
+      <AuthProvider>
         <div className="min-h-screen">
           <AppRoutes />
           <Toaster />
         </div>
-      </SupabaseAuthProvider>
+      </AuthProvider>
     </Router>
   );
 }
