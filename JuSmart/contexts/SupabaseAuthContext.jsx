@@ -1,4 +1,3 @@
-// src/contexts/SupabaseAuthContext.jsx
 import React, {
   createContext,
   useCallback,
@@ -7,153 +6,224 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { supabase } from "@/lib/customSupabaseClient";
+import { createClient } from "@supabase/supabase-js";
 
-// URL para onde o Supabase deve redirecionar após o OAuth.
-// Em dev: http://localhost:5173  |  Em produção: https://ju-smart.vercel.app
-const APP_URL =
-  import.meta.env?.VITE_APP_URL || (typeof window !== "undefined" ? window.location.origin : "");
+// ===================================================
+// Supabase client
+// ===================================================
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Contexto
-const SupabaseAuthContext = createContext(null);
+if (!supabaseUrl || !supabaseAnon) {
+  // Log claro em dev
+  console.warn(
+    "[Supabase] VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY não definidos."
+  );
+}
 
-// Provider
-export function SupabaseAuthProvider({ children }) {
-  const [session, setSession] = useState(null);
+export const supabase = createClient(supabaseUrl, supabaseAnon, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
+
+// ===================================================
+// Helpers
+// ===================================================
+function getRedirectTo() {
+  // Em dev usa localhost; em prod usa domínio do app
+  const fromEnv = import.meta.env.VITE_APP_URL;
+  if (fromEnv) return `${fromEnv}/login`; // pós-login cai no /login que redireciona para /app
+  if (typeof window !== "undefined") {
+    const base = window.location.origin;
+    return `${base}/login`;
+  }
+  return undefined;
+}
+
+const hasV2OAuth = () =>
+  typeof supabase?.auth?.signInWithOAuth === "function"; // v2
+const hasV1OAuth = () => typeof supabase?.auth?.signIn === "function"; // v1
+
+// ===================================================
+/* Contexto */
+// ===================================================
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Carrega sessão ao montar e assina mudanças de auth
+  // Carrega sessão inicial
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      setSession(data.session ?? null);
-      setUser(data.session?.user ?? null);
-      setInitialLoading(false);
-    });
-
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession ?? null);
-        setUser(newSession?.user ?? null);
+    async function load() {
+      try {
+        if (typeof supabase.auth.getSession === "function") {
+          // v2
+          const { data } = await supabase.auth.getSession();
+          if (!mounted) return;
+          setUser(data?.session?.user ?? null);
+        } else if (typeof supabase.auth.session === "function") {
+          // v1
+          const session = supabase.auth.session();
+          if (!mounted) return;
+          setUser(session?.user ?? null);
+        }
+      } finally {
+        if (mounted) setLoading(false);
       }
-    );
+    }
+    load();
+
+    // Escuta mudanças de auth
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
     return () => {
       mounted = false;
-      subscription?.subscription?.unsubscribe?.();
+      sub?.subscription?.unsubscribe?.();
     };
   }, []);
 
-  // ---------- Ações de Autenticação ----------
-
+  // -------- email + senha --------
   const signUp = useCallback(async (email, password, metadata = {}) => {
-    // Cadastro com metadados (RegisterPage já usa)
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo: `${APP_URL}/login`, // para fluxo de confirmação por e-mail
-      },
-    });
+    if (typeof supabase.auth.signUp === "function") {
+      // v2
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: metadata },
+      });
+      if (error) throw error;
+      return data;
+    }
+    // v1
+    const { user, session, error } = await supabase.auth.signUp(
+      { email, password },
+      { data: metadata }
+    );
     if (error) throw error;
-    return data;
+    return { user, session };
   }, []);
 
-  const signIn = useCallback(async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
+  // -------- OAuth (Google) com fallback v2 -> v1 --------
+  const signInWithGoogle = useCallback(async () => {
+    const redirectTo = getRedirectTo();
+
+    if (hasV2OAuth()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
+      });
+      if (error) throw error;
+      return data;
+    }
+
+    if (hasV1OAuth()) {
+      const { user, session, error } = await supabase.auth.signIn(
+        { provider: "google" },
+        { redirectTo }
+      );
+      if (error) throw error;
+      return { user, session };
+    }
+
+    throw new Error(
+      "Nenhuma API OAuth válida encontrada no supabase-js (v1/v2)."
+    );
+  }, []);
+
+  // -------- OAuth (Apple) com fallback v2 -> v1 --------
+  const signInWithApple = useCallback(async () => {
+    const redirectTo = getRedirectTo();
+
+    if (hasV2OAuth()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: { redirectTo },
+      });
+      if (error) throw error;
+      return data;
+    }
+
+    if (hasV1OAuth()) {
+      const { user, session, error } = await supabase.auth.signIn(
+        { provider: "apple" },
+        { redirectTo }
+      );
+      if (error) throw error;
+      return { user, session };
+    }
+
+    throw new Error(
+      "Nenhuma API OAuth válida encontrada no supabase-js (v1/v2)."
+    );
   }, []);
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await supabase.auth.signOut();
   }, []);
 
-  // OAuth genérico
-  const signInWithProvider = useCallback(async (provider) => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: APP_URL, // volta para a sua app
-        // se quiser forçar popup em vez de redirect:
-        // queryParams: { prompt: "select_account" },
-      },
-    });
-    if (error) throw error;
-  }, []);
+  const updateProfile = useCallback(async (updates) => {
+    const u = supabase.auth.user?.() ?? supabase.auth.getUser?.();
+    const currentUser = u?.user ?? u; // v1/v2 compat
+    if (!currentUser) throw new Error("Sem usuário logado.");
 
-  // Atalhos
-  const signInWithGoogle = useCallback(
-    async () => signInWithProvider("google"),
-    [signInWithProvider]
-  );
-
-  const signInWithApple = useCallback(
-    async () => signInWithProvider("apple"),
-    [signInWithProvider]
-  );
-
-  // Reset de senha (opcional)
-  const resetPassword = useCallback(async (email) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${APP_URL}/reset-password`,
+    const { data, error } = await supabase.from("profiles").upsert({
+      id: currentUser.id,
+      ...updates,
+      updated_at: new Date().toISOString(),
     });
     if (error) throw error;
     return data;
+  }, []);
+
+  const refreshSession = useCallback(async () => {
+    if (typeof supabase.auth.refreshSession === "function") {
+      // v2
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      return data;
+    }
+    // v1 não precisa (token auto-refresh)
+    return null;
   }, []);
 
   const value = useMemo(
     () => ({
-      // estado
-      session,
       user,
-      initialLoading,
-
-      // métodos
+      loading,
       signUp,
-      signIn,
-      signOut,
-      signInWithGoogle,
-      signInWithApple, // funciona quando você concluir a configuração na Apple
-      resetPassword,
-    }),
-    [
-      session,
-      user,
-      initialLoading,
-      signUp,
-      signIn,
-      signOut,
       signInWithGoogle,
       signInWithApple,
-      resetPassword,
+      signOut,
+      updateProfile,
+      refreshSession,
+    }),
+    [
+      user,
+      loading,
+      signUp,
+      signInWithGoogle,
+      signInWithApple,
+      signOut,
+      updateProfile,
+      refreshSession,
     ]
   );
 
-  return (
-    <SupabaseAuthContext.Provider value={value}>
-      {children}
-    </SupabaseAuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Hook de consumo
-export function useAuth() {
-  const ctx = useContext(SupabaseAuthContext);
-  if (!ctx) {
-    throw new Error(
-      "useAuth deve ser usado dentro de <SupabaseAuthProvider>."
-    );
-  }
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth deve ser usado dentro de <AuthProvider />");
   return ctx;
-}
-
-export default SupabaseAuthContext;
+};
