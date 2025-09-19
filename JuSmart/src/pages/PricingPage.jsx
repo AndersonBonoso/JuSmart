@@ -48,7 +48,7 @@
         {
           name: 'Premium',
           users: 3,
-          monthlyPrice: 109.90,
+          monthlyPrice: 129.90,
           yearlyPrice: 94.90,
           features: [
             '3 usuários',
