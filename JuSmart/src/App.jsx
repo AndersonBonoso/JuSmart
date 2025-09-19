@@ -7,7 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { SupabaseAuthProvider, useAuth } from "@/contexts/SupabaseAuthContext";
+import { AuthProvider, useAuth } from "@/contexts/SupabaseAuthContext";
 
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
