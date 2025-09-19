@@ -39,15 +39,36 @@ const RegisterPage = () => {
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const redirectTo = `${APP_URL}/login`; // pós-login retorna para /login (que redireciona p/ /app)
 
-  const goOAuth = (provider) => {
-    const url = new URL(`${SUPABASE_URL}/auth/v1/authorize`);
-    url.searchParams.set('provider', provider);
-    url.searchParams.set('redirect_to', redirectTo);
-    window.location.assign(url.toString());
+  const tryOAuthRedirect = (provider) => {
+    try {
+      if (!SUPABASE_URL) {
+        toast({
+          title: 'Configuração ausente',
+          description: 'VITE_SUPABASE_URL não está definida no ambiente. Adicione em Vercel (Preview/Production) e redeploy.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const base = SUPABASE_URL.replace(/\/$/, '');
+      const target =
+        `${base}/auth/v1/authorize` +
+        `?provider=${encodeURIComponent(provider)}` +
+        `&redirect_to=${encodeURIComponent(redirectTo)}`;
+
+      // Redireciona na mesma aba
+      window.location.href = target;
+    } catch (err) {
+      console.error('OAuth redirect error:', err);
+      toast({
+        title: `Erro ao entrar com ${provider === 'google' ? 'Google' : 'Apple'}`,
+        description: String(err?.message || err),
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleGoogleLogin = () => goOAuth('google');
-  const handleAppleLogin = () => goOAuth('apple');
+  const handleGoogleLogin = () => tryOAuthRedirect('google');
+  const handleAppleLogin = () => tryOAuthRedirect('apple');
   // ================================================
 
   const passwordMatch = useMemo(() => {
