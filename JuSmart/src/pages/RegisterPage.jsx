@@ -33,6 +33,44 @@ const RegisterPage = () => {
   const { signUp } = useAuth();
   const { toast } = useToast();
 
+  // ========= Handlers de OAuth (Supabase) =========
+  const APP_URL =
+    import.meta.env.VITE_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const redirectTo = `${APP_URL}/login`; // pós-login retorna para /login (que redireciona p/ /app)
+
+  const tryOAuthRedirect = (provider) => {
+    try {
+      if (!SUPABASE_URL) {
+        toast({
+          title: 'Configuração ausente',
+          description: 'VITE_SUPABASE_URL não está definida no ambiente. Adicione em Vercel (Preview/Production) e redeploy.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const base = SUPABASE_URL.replace(/\/$/, '');
+      const target =
+        `${base}/auth/v1/authorize` +
+        `?provider=${encodeURIComponent(provider)}` +
+        `&redirect_to=${encodeURIComponent(redirectTo)}`;
+
+      // Redireciona na mesma aba
+      window.location.href = target;
+    } catch (err) {
+      console.error('OAuth redirect error:', err);
+      toast({
+        title: `Erro ao entrar com ${provider === 'google' ? 'Google' : 'Apple'}`,
+        description: String(err?.message || err),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleGoogleLogin = () => tryOAuthRedirect('google');
+  const handleAppleLogin = () => tryOAuthRedirect('apple');
+  // ================================================
+
   const passwordMatch = useMemo(() => {
     return formData.password && formData.confirmPassword && formData.password === formData.confirmPassword;
   }, [formData.password, formData.confirmPassword]);
@@ -113,10 +151,6 @@ const RegisterPage = () => {
     setLoading(false);
   };
 
-  const handleSocialRegister = () => {
-    toast({ title: "🚧 Este recurso não está implementado ainda", description: "Podemos ativar na próxima etapa. 🚀" });
-  };
-
   if (step === 3) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-hero p-4">
@@ -183,10 +217,10 @@ const RegisterPage = () => {
 
             {step === 1 ? (
               <div className="space-y-6">
-                {/* Botões Sociais (componentizado) */}
+                {/* Botões Sociais */}
                 <SocialLoginButtons
-                  onGoogleClick={handleSocialRegister}
-                  onAppleClick={handleSocialRegister}
+                  onGoogleClick={handleGoogleLogin}
+                  onAppleClick={handleAppleLogin}
                 />
 
                 <div className="relative">
