@@ -30,7 +30,9 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signUp } = useAuth();
+
+  // ⬇️ ALTERAÇÃO: acrescentamos signInWithGoogle e signInWithApple
+  const { signUp, signInWithGoogle, signInWithApple } = useAuth();
   const { toast } = useToast();
 
   const passwordMatch = useMemo(() => {
@@ -113,6 +115,32 @@ const RegisterPage = () => {
     setLoading(false);
   };
 
+  // ⬇️ NOVOS HANDLERS reais para os botões sociais
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      toast({
+        title: 'Erro ao entrar com Google',
+        description: err?.message || String(err),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      await signInWithApple();
+    } catch (err) {
+      toast({
+        title: 'Apple ID indisponível',
+        description: 'Configure o provedor Apple no Supabase para ativar este login.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Mantemos esse placeholder caso queira reutilizar
   const handleSocialRegister = () => {
     toast({ title: "🚧 Este recurso não está implementado ainda", description: "Podemos ativar na próxima etapa. 🚀" });
   };
@@ -185,8 +213,8 @@ const RegisterPage = () => {
               <div className="space-y-6">
                 {/* Botões Sociais (componentizado) */}
                 <SocialLoginButtons
-                  onGoogleClick={handleSocialRegister}
-                  onAppleClick={handleSocialRegister}
+                  onGoogleClick={handleGoogleLogin}   {/* ⬅️ ALTERADO */}
+                  onAppleClick={handleAppleLogin}     {/* ⬅️ ALTERADO */}
                 />
 
                 <div className="relative">
